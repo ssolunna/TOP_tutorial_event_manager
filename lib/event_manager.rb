@@ -47,6 +47,23 @@ contents.each do |row|
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   legislators = legislators_by_zipcode(zipcode)
+  
+  phonenumber = row[:homephone].split(//)
+  phonenumber = phonenumber.filter { |char| char.match?(/[0-9]/) }.join
+  # if phone number is less than 10 digits, is a bad number
+  if phonenumber.length < 10
+    phonenumber = "Invalid phone number"
+  # if phone number is 10 digits, is a good number
+  elsif phonenumber.length == 10
+    phonenumber
+  # if phone number is 11 digits and the first number is 1, trim the 1and use the remaining 10 digits
+  elsif phonenumber.length == 11 && phonenumber.start_with?("1")
+    phonenumber = phonenumber[1..-1]
+  # if phone number is 11 digits and the first number is not 1, is a bad number
+  # if phone number is more than 11 digits, is a bad number
+  elsif phonenumber.length >= 11
+    phonenumber = "Invalid phone number"
+  end
 
   form_letter = erb_template.result(binding)
 

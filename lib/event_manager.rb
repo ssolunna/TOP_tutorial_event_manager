@@ -43,6 +43,18 @@ def save_thank_you_letter(id,form_letter)
   end
 end
 
+def peak_hours(regdates)
+  peak_hours = regdates.reduce(Hash.new(0)) do |list, regdate|
+    list[regdate.hour] += 1
+    list
+  end
+
+  peak_hours.sort_by { |hour, qty| [-qty, hour] }.to_h
+
+  # puts "Peak hours"
+  # peak_hours.each { |hour, qty| puts "#{hour.to_s.rjust(2, '0')} Hrs: #{qty}" }
+end
+
 puts 'EventManager initialized.'
 
 contents = CSV.open(
@@ -54,13 +66,18 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
+regdates = Array.new
+
 contents.each do |row|
   id = row[0]
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
+  
   legislators = legislators_by_zipcode(zipcode)
   
   phonenumber = clean_phonenumber(row[:homephone])
+
+  regdates << Time.strptime(row[:regdate], "%m/%d/%y %k:%M") 
 
   form_letter = erb_template.result(binding)
 

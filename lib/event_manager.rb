@@ -49,10 +49,22 @@ def peak_hours(regdates)
     list
   end
 
-  peak_hours.sort_by { |hour, qty| [-qty, hour] }.to_h
+  peak_hours = peak_hours.sort_by { |hour, qty| [-qty, hour] }.to_h
 
   # puts "Peak hours"
   # peak_hours.each { |hour, qty| puts "#{hour.to_s.rjust(2, '0')} Hrs: #{qty}" }
+end
+
+def peak_days(regdates)
+  peak_days = regdates.reduce(Hash.new(0)) do |list, regdate|
+    list[Date::DAYNAMES[regdate.wday]] += 1
+    list
+  end
+
+  peak_days = peak_days.sort_by { |day, qty| [-qty, day] }.to_h
+  
+  # puts "Peak days"
+  # peak_days.each { |day, qty| puts "#{day.to_s.rjust(2, '0')}: #{qty}" }
 end
 
 puts 'EventManager initialized.'
@@ -77,7 +89,7 @@ contents.each do |row|
   
   phonenumber = clean_phonenumber(row[:homephone])
 
-  regdates << Time.strptime(row[:regdate], "%m/%d/%y %k:%M") 
+  regdates << DateTime.strptime(row[:regdate], "%m/%d/%y %k:%M") 
 
   form_letter = erb_template.result(binding)
 
